@@ -8,6 +8,21 @@ import com.github.lmk1988.collator.callbacks.OnCompletionCallback;
 
 import java.util.ArrayList;
 
+/**
+ * Awaits async processes completion and triggers a callback after every process is completed.
+ * <br />
+ * Before the start of every async process, you will need to create a {@link CompletionNode}
+ * using {@link #reserveCompletion()}. This allows the collator to know how the amount of
+ * processes to await for.
+ * <br />
+ * Upon async process completion, call {@link CompletionNode#completed()}
+ * to notify collator of completion.
+ * <br />
+ * When every CompletionNode has indicated completion, {@link OnCompletionCallback#onComplete()}
+ * will be triggered.
+ * <br />
+ * {@link OnCompletionCallback} is added in {@link #awaitCompletion(OnCompletionCallback)}
+ */
 public class CompletionCollator {
 
     @Nullable
@@ -20,6 +35,15 @@ public class CompletionCollator {
         subNodes = new ArrayList<>();
     }
 
+    /**
+     * Reserve a node in this collator to allow indication of completion in a separate async process.
+     * <br />
+     * Note that you will need to create a node before the start of the async process.
+     *
+     * @return {@link CompletionNode} node to call {@link CompletionNode#completed()} when async process is completed
+     * @throws RuntimeException If {@link #awaitCompletion(OnCompletionCallback)} is called before this function
+     */
+    @NonNull
     @CheckResult
     public synchronized CompletionNode reserveCompletion() {
         if (this.callback != null) {
@@ -40,6 +64,15 @@ public class CompletionCollator {
         }
     }
 
+    /**
+     * Await generated {@link CompletionNode} to complete before triggering {@link OnCompletionCallback#onComplete()}
+     * <br />
+     * Note that is fine to call this function even if no nodes are generated. This can happen
+     * when the amount of async process varies from NONE to MANY
+     *
+     * @param callback {@link OnCompletionCallback} to trigger
+     * @throws RuntimeException If this function is called more than once
+     */
     public synchronized void awaitCompletion(@NonNull final OnCompletionCallback callback) {
         if (this.callback == null) {
             this.callback = callback;

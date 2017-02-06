@@ -2,6 +2,20 @@ package com.github.lmk1988.collator;
 
 import android.support.annotation.NonNull;
 
+import com.github.lmk1988.collator.callbacks.OnCompletionCallback;
+
+/**
+ * CompletionNodes are created by
+ * {@link CompletionCollator}
+ * using function
+ * {@link CompletionCollator#awaitCompletion(OnCompletionCallback) awaitCompletion()}.
+ * For every async process which you would like to await for its
+ * completion, a CompletionNode is required before the start of the
+ * async process.
+ * <br />
+ * Call {@link #completed()} upon async process completion.
+ */
+
 public class CompletionNode {
     private CompletionCollator parentCollator;
 
@@ -9,6 +23,11 @@ public class CompletionNode {
         this.parentCollator = parentCollator;
     }
 
+    /**
+     * It is required to call this function to indicate completion.
+     * <br />
+     * Failure to do so will cause process to lock up
+     */
     public synchronized void completed() {
         if (parentCollator != null) {
             parentCollator.freeNode(this);
