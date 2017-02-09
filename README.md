@@ -1,5 +1,5 @@
 # Collator
-JAVA
+Android / JAVA(If you strip the annotations)
 
 Currently in order to collect multi parallel async process/task results, there are a few ways to
 do it.
@@ -17,7 +17,7 @@ codes/libraries and to remove the need to know the number of results/completion 
 
 ## Collators
 
-### CompletionCollator
+#### CompletionCollator
 
 Used to wait for multiple process to end before triggering a callback
 
@@ -80,7 +80,7 @@ collator.awaitCompletion(new OnCompletionCallback() {
 
 ```
 
-### CallbackCollator
+#### CallbackCollator
 
 Used to collect results from multiple async processes
 
@@ -144,10 +144,35 @@ collator.awaitCallbacks(new CollatedResultsCallback<String>() {
 
 ```
 
+## Q &amp; A
 
-## What are the possible pitfalls of using this?
-
+**What are the possible pitfalls of using this?**
+>
 1. The collators do not timeout. Hence if you forget to use the node, it will be stuck.
 Timeout was not added as most async process/task should already have their own
 timeout feature implemented, it does not make sense to add another timeout on top of those.
 2. CallbackCollator does not collate results in sequence with the nodes created.
+3. CallbackCollator does not accept `NULL` as callback result
+
+
+**Why doesn't CallbackCollator accept `NULL` result?**
+
+>If you are looking to differentiate success or failure, it might be better to use `Boolean`
+for CallbackCollator type.
+
+**I wish to collate some MODEL object result, how can I do so if it does not accept `NULL`?**
+
+>Create a separate MODEL class that will store a `Boolean` and a @NULLABLE MODEL
+object of your choice
+
+
+**Do you have a Collator to collect multi return types?**
+
+>No. But CallbackCollator should still be used with a MODEL class that can represent
+the multi return types.
+
+>
+1. You can use their BASE class with a TYPE int for identification. Cast them according
+to their TYPE.
+2. You could create a class with various @NULLABLE variables of the same type.
+(Workable but not recomended)
