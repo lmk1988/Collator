@@ -27,6 +27,7 @@ public class CompletionNode {
      * It is required to call this function to indicate completion.
      * <br />
      * Failure to do so will cause process to lock up
+     * @throws RuntimeException when function is called more than once
      */
     public synchronized void completed() {
         if (parentCollator != null) {

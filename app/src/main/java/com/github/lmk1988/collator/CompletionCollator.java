@@ -12,7 +12,7 @@ import java.util.ArrayList;
  * Awaits async processes completion and triggers a callback after every process is completed.
  * <br />
  * Before the start of every async process, you will need to create a {@link CompletionNode}
- * using {@link #reserveCompletion()}. This allows the collator to know how the amount of
+ * using {@link #reserveCompletion()}. This allows the collator to know the amount of
  * processes to await for.
  * <br />
  * Upon async process completion, call {@link CompletionNode#completed()}
@@ -67,7 +67,7 @@ public class CompletionCollator {
     /**
      * Await generated {@link CompletionNode} to complete before triggering {@link OnCompletionCallback#onComplete()}
      * <br />
-     * Note that is fine to call this function even if no nodes are generated. This can happen
+     * Note that it is fine to call this function even if no nodes are generated. This can happen
      * when the amount of async process varies from NONE to MANY
      *
      * @param callback {@link OnCompletionCallback} to trigger
