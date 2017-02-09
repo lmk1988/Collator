@@ -80,6 +80,69 @@ collator.awaitCompletion(new OnCompletionCallback() {
 
 ```
 
+### CallbackCollator
+
+Used to collect results from multiple async processes
+
+E.g.
+```
+//Create the collator for String results
+CallbackCollator<String> collator = new CallbackCollator<>();
+
+if(//Some reason){
+    //Reserve node before the start of a task
+    final CallbackCollatorNode<String> node = collator.reserveCallback();
+
+    AsyncTask<Void, Void, Void> longDelayTask = new AsyncTask<Void, Void, String>() {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                Log.e("longDelayTask", "Interrupted", e);
+            }
+            return null;
+        }
+
+        @Override
+        protected String onPostExecute(Void aVoid) {
+            node.returnCallbackResult("Hello");
+        }
+    };
+}
+
+if(//Some Other Reason){
+    //Reserve node before the start of a task
+    final CallbackCollatorNode<String> node = collator.reserveCallback();
+
+    AsyncTask<Void, Void, Void> anotherLongDelayTask = new AsyncTask<Void, Void, String>() {
+        @Override
+        protected Void doInBackground(Void... voids) {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                Log.e("anotherLongDelayTask", "Interrupted", e);
+            }
+            return null;
+        }
+
+        @Override
+        protected String onPostExecute(Void aVoid) {
+            node.returnCallbackResult("World");
+        }
+    };
+}
+
+
+collator.awaitCallbacks(new CollatedResultsCallback<String>() {
+     @Override
+     public void onCompleteCallbacks(@NonNull List<String> collatedResults) {
+         //Perform other codes after completion of the two AsyncTask
+         //collatedResults will contain ["World", "Hello"] instead of ["Hello", "World"]
+     }
+});
+
+```
 
 
 ## What are the possible pitfalls of using this?
@@ -87,3 +150,4 @@ collator.awaitCompletion(new OnCompletionCallback() {
 1. The collators do not timeout. Hence if you forget to use the node, it will be stuck.
 Timeout was not added as most async process/task should already have their own
 timeout feature implemented, it does not make sense to add another timeout on top of those.
+2. CallbackCollator does not collate results in sequence with the nodes created.
